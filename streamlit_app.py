@@ -56,6 +56,7 @@ def main():
     st.subheader(f"Translate from {from_lang} to {to_lang}:")
     st.markdown(f"### {card[from_lang]}")
 
+    # --- Form for typing and pressing Enter ---
     with st.form("check_form", clear_on_submit=True):
         user_input = st.text_input("Your translation:", value="", key="user_input_field")
         submitted = st.form_submit_button("✅ Check")
@@ -77,19 +78,20 @@ def main():
                 st.warning(f"The correct answer was: **{correct_answer}**")
                 next_card()
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("💡 Show Hint"):
             st.session_state.show_hint = True
     with col2:
         if st.button("📝 Show Translation"):
             st.session_state.show_translation = True
+    with col3:
+        if st.button("⏭️ Skip"):
+            if card not in st.session_state.still_learning:
+                st.session_state.still_learning.append(card)
+            next_card()
 
-    if st.button("⏭️ Skip this word"):
-        if card not in st.session_state.still_learning:
-            st.session_state.still_learning.append(card)
-        next_card()
-
+    # --- Feedback, hint, translation ---
     if st.session_state.feedback:
         st.markdown(f"**{st.session_state.feedback}**")
 
@@ -99,9 +101,10 @@ def main():
     if st.session_state.show_translation:
         st.success(f"The correct translation is: **{card[to_lang]}**")
 
+    # --- Practice filter ---
     st.checkbox("🎯 Practice only 'Still Learning' words", key="learn_only")
 
-    # --- Show Results Button ---
+    # --- Results Button ---
     if st.button("📊 Show Results"):
         st.session_state.show_results = True
 

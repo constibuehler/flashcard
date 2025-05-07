@@ -14,9 +14,9 @@ def init_state():
     st.session_state.feedback = ""
     st.session_state.correct = False
     st.session_state.show_hint = False
-    st.session_state.user_input = ""
     st.session_state.attempts = 0
     st.session_state.learn_only = False
+    st.session_state.user_input = ""
 
 # --- Select Next Card ---
 def next_card():
@@ -25,8 +25,8 @@ def next_card():
     st.session_state.feedback = ""
     st.session_state.correct = False
     st.session_state.show_hint = False
-    st.session_state.user_input = ""
     st.session_state.attempts = 0
+    st.session_state.user_input = ""
     st.rerun()
 
 # --- Check Answer ---
@@ -39,7 +39,6 @@ def main():
     st.write("Translate the word and train your brain!")
 
     languages = ["English", "German", "French", "Portuguese", "Italian"]
-
     from_lang = st.selectbox("🔤 Language you know:", languages)
     to_lang = st.selectbox("🌍 Language you want to learn:", languages, index=2)
 
@@ -51,13 +50,15 @@ def main():
         init_state()
 
     card = st.session_state.current_card
-    st.subheader(f"Translate this word from {from_lang} to {to_lang}:")
+    st.subheader(f"Translate from {from_lang} to {to_lang}:")
     st.markdown(f"### {card[from_lang]}")
 
-    user_input = st.text_input("Your translation:", value="", key="input")
+    # --- Form to handle enter/return key ---
+    with st.form("check_form", clear_on_submit=True):
+        user_input = st.text_input("Your translation:", value="", key="user_input_field")
+        submitted = st.form_submit_button("✅ Check")
 
-    # Automatically submit when user presses Enter
-    if user_input:
+    if submitted:
         correct_answer = card[to_lang]
         if check_answer(user_input, correct_answer):
             st.session_state.feedback = "✅ Correct!"
@@ -103,3 +104,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

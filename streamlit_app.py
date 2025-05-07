@@ -14,9 +14,11 @@ def init_state():
     st.session_state.feedback = ""
     st.session_state.correct = False
     st.session_state.show_hint = False
+    st.session_state.show_translation = False
     st.session_state.attempts = 0
     st.session_state.learn_only = False
     st.session_state.user_input = ""
+    st.session_state.show_results = False
 
 # --- Select Next Card ---
 def next_card():
@@ -25,6 +27,7 @@ def next_card():
     st.session_state.feedback = ""
     st.session_state.correct = False
     st.session_state.show_hint = False
+    st.session_state.show_translation = False
     st.session_state.attempts = 0
     st.session_state.user_input = ""
     st.rerun()
@@ -53,7 +56,6 @@ def main():
     st.subheader(f"Translate from {from_lang} to {to_lang}:")
     st.markdown(f"### {card[from_lang]}")
 
-    # --- Form to handle enter/return key ---
     with st.form("check_form", clear_on_submit=True):
         user_input = st.text_input("Your translation:", value="", key="user_input_field")
         submitted = st.form_submit_button("✅ Check")
@@ -75,8 +77,13 @@ def main():
                 st.warning(f"The correct answer was: **{correct_answer}**")
                 next_card()
 
-    if st.button("💡 Show Hint"):
-        st.session_state.show_hint = True
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("💡 Show Hint"):
+            st.session_state.show_hint = True
+    with col2:
+        if st.button("📝 Show Translation"):
+            st.session_state.show_translation = True
 
     if st.button("⏭️ Skip this word"):
         if card not in st.session_state.still_learning:
@@ -89,16 +96,25 @@ def main():
     if st.session_state.show_hint:
         st.info(f"Hint: starts with **{card[to_lang][:2]}...**")
 
+    if st.session_state.show_translation:
+        st.success(f"The correct translation is: **{card[to_lang]}**")
+
     st.checkbox("🎯 Practice only 'Still Learning' words", key="learn_only")
 
-    # --- Progress ---
-    with st.expander("📊 Progress"):
+    # --- Show Results Button ---
+    if st.button("📊 Show Results"):
+        st.session_state.show_results = True
+
+    if st.session_state.show_results:
+        st.subheader("📊 Your Progress Summary")
         st.write(f"✅ Done: {len(st.session_state.done)} cards")
         st.write(f"🧠 Still Learning: {len(st.session_state.still_learning)} cards")
-        if st.checkbox("Show 'Done' cards"):
+
+        with st.expander("✅ View 'Done' Cards"):
             for c in st.session_state.done:
                 st.write(f"{c[from_lang]} → {c[to_lang]}")
-        if st.checkbox("Show 'Still Learning' cards"):
+
+        with st.expander("🧠 View 'Still Learning' Cards"):
             for c in st.session_state.still_learning:
                 st.write(f"{c[from_lang]} → {c[to_lang]}")
 

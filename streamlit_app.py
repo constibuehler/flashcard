@@ -51,39 +51,35 @@ def main():
         init_state()
 
     card = st.session_state.current_card
-    st.subheader(f"Translate from {from_lang} to {to_lang}:")
+    st.subheader(f"Translate this word from {from_lang} to {to_lang}:")
     st.markdown(f"### {card[from_lang]}")
 
     st.session_state.user_input = st.text_input("Your translation:", value=st.session_state.user_input)
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("✅ Check"):
-            correct_answer = card[to_lang]
-            if check_answer(st.session_state.user_input, correct_answer):
-                st.session_state.feedback = "✅ Correct!"
-                st.session_state.correct = True
-                if card not in st.session_state.done:
-                    st.session_state.done.append(card)
-                next_card()
-            else:
-                st.session_state.attempts += 1
-                st.session_state.feedback = f"❌ Wrong ({st.session_state.attempts}/3). Try again or ask for a hint."
-                if card not in st.session_state.still_learning:
-                    st.session_state.still_learning.append(card)
-                if st.session_state.attempts >= 3:
-                    st.warning(f"The correct answer was: **{correct_answer}**")
-                    next_card()
-
-    with col2:
-        if st.button("💡 Hint"):
-            st.session_state.show_hint = True
-
-    with col3:
-        if st.button("⏭️ Skip"):
+    if st.button("✅ Check"):
+        correct_answer = card[to_lang]
+        if check_answer(st.session_state.user_input, correct_answer):
+            st.session_state.feedback = "✅ Correct!"
+            st.session_state.correct = True
+            if card not in st.session_state.done:
+                st.session_state.done.append(card)
+            next_card()
+        else:
+            st.session_state.attempts += 1
+            st.session_state.feedback = f"❌ Not quite. Try again or ask for a hint!"
             if card not in st.session_state.still_learning:
                 st.session_state.still_learning.append(card)
-            next_card()
+            if st.session_state.attempts >= 3:
+                st.warning(f"The correct answer was: **{correct_answer}**")
+                next_card()
+
+    if st.button("💡 Show Hint"):
+        st.session_state.show_hint = True
+
+    if st.button("⏭️ Skip this word"):
+        if card not in st.session_state.still_learning:
+            st.session_state.still_learning.append(card)
+        next_card()
 
     if st.session_state.feedback:
         st.markdown(f"**{st.session_state.feedback}**")

@@ -54,11 +54,12 @@ def main():
     st.subheader(f"Translate this word from {from_lang} to {to_lang}:")
     st.markdown(f"### {card[from_lang]}")
 
-    st.session_state.user_input = st.text_input("Your translation:", value=st.session_state.user_input)
+    user_input = st.text_input("Your translation:", value="", key="input")
 
-    if st.button("✅ Check"):
+    # Automatically submit when user presses Enter
+    if user_input:
         correct_answer = card[to_lang]
-        if check_answer(st.session_state.user_input, correct_answer):
+        if check_answer(user_input, correct_answer):
             st.session_state.feedback = "✅ Correct!"
             st.session_state.correct = True
             if card not in st.session_state.done:
@@ -102,4 +103,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

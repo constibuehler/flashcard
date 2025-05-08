@@ -3,10 +3,10 @@ import streamlit as st
 import random
 from flashcards_data import flashcards
 
-# --- App Setup ---
+# Configuring the landing page
 st.set_page_config(page_title="My Flash Cards", page_icon="📚", layout="centered")
 
-# --- Initialize State ---
+# Setting initial session state
 def init_state():
     st.session_state.done = []
     st.session_state.still_learning = []
@@ -20,7 +20,7 @@ def init_state():
     st.session_state.user_input = ""
     st.session_state.show_results = False
 
-# --- Select Next Card ---
+# Drawing the next flashcard
 def next_card():
     source = st.session_state.still_learning if st.session_state.learn_only and st.session_state.still_learning else flashcards
     st.session_state.current_card = random.choice(source)
@@ -32,15 +32,16 @@ def next_card():
     st.session_state.user_input = ""
     st.rerun()
 
-# --- Check Answer ---
+# Comparing user input with correct answer
 def check_answer(user_input, correct_answer):
     return user_input.strip().lower() == correct_answer.strip().lower()
 
-# --- App Logic ---
+# Running the flashcard trainer
 def main():
     st.title("📚 My Flash Cards")
     st.write("Translate the word and train your brain!")
 
+    # Choosing languages
     languages = ["English", "German", "French", "Portuguese", "Italian"]
     from_lang = st.selectbox("🔤 Language you know:", languages)
     to_lang = st.selectbox("🌍 Language you want to learn:", languages, index=2)
@@ -56,11 +57,12 @@ def main():
     st.subheader(f"Translate from {from_lang} to {to_lang}:")
     st.markdown(f"### {card[from_lang]}")
 
-    # --- Form for typing and pressing Enter ---
+    # Submitting an answer
     with st.form("check_form", clear_on_submit=True):
         user_input = st.text_input("Your translation:", value="", key="user_input_field")
         submitted = st.form_submit_button("✅ Check")
-
+     
+     # Handling user submission
     if submitted:
         correct_answer = card[to_lang]
         if check_answer(user_input, correct_answer):
@@ -78,6 +80,7 @@ def main():
                 st.warning(f"The correct answer was: **{correct_answer}**")
                 next_card()
 
+    # Showing hint, translation, or skipping
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("💡 Show Hint"):
@@ -91,7 +94,7 @@ def main():
                 st.session_state.still_learning.append(card)
             next_card()
 
-    # --- Feedback, hint, translation ---
+     # Showing feedback and help
     if st.session_state.feedback:
         st.markdown(f"**{st.session_state.feedback}**")
 
@@ -101,10 +104,10 @@ def main():
     if st.session_state.show_translation:
         st.success(f"The correct translation is: **{card[to_lang]}**")
 
-    # --- Practice filter ---
+    # Filtering practice mode
     st.checkbox("🎯 Practice only 'Still Learning' words", key="learn_only")
 
-    # --- Results Button ---
+    # Displaying results summary
     if st.button("📊 Show Results"):
         st.session_state.show_results = True
 
@@ -121,6 +124,8 @@ def main():
             for c in st.session_state.still_learning:
                 st.write(f"{c[from_lang]} → {c[to_lang]}")
 
+# Starting the app
 if __name__ == "__main__":
     main()
+    
     
